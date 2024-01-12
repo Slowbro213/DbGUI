@@ -51,7 +51,9 @@ public class HelloApplication extends Application {
         l.setFont(new Font("Helvetica",20));
         Button query = new Button("Execute Query");
         TextArea area = new TextArea();
+        area.setMaxWidth(1500);
         TableView tableView = new TableView();
+        tableView.setMaxWidth(1500);
         query.setOnAction(e->loadDataFromDatabase(area.getText(),tableView));
         Commands = new VBox(l,area,query,tableView);
         Commands.setSpacing(50);
@@ -63,6 +65,7 @@ public class HelloApplication extends Application {
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
 
         tableView = new TableView();
+        tableView.setMaxWidth(1500);
         Commands.getChildren().set(3,tableView);
         try {
 
