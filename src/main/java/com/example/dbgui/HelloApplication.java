@@ -44,6 +44,13 @@ public class HelloApplication extends Application {
 
     Label xlabel;
 
+    RadioButton rb1;
+    RadioButton rb2;
+    RadioButton rb3;
+    RadioButton rb4;
+    RadioButton rb5;
+    RadioButton rb6;
+
     StackPane spane; // profile zone
 
     public void CreateCommandsZone()
@@ -54,6 +61,7 @@ public class HelloApplication extends Application {
         l.setFont(new Font("Helvetica",20));
         Button query = new Button("Execute Query");
         TextArea area = new TextArea();
+        area.setStyle("-fx-control-inner-background: black; -fx-text-fill: green; -fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Courier New';");
         area.setMaxWidth(1500);
         TableView tableView = new TableView();
         tableView.setMaxWidth(1500);
@@ -111,8 +119,11 @@ public class HelloApplication extends Application {
             i++;
         }
         spane = new StackPane(r1,r2,vox);
-        spane.setOnMouseEntered(e->r1.setFill(Color.DARKBLUE));
-        spane.setOnMouseExited(e->r1.setFill(Color.LIGHTBLUE));
+        try{
+            vbox.getChildren().set(1,spane);
+            vbox.setSpacing(70);
+            xlabel.setText("Home >> Grades");
+        }catch (NullPointerException npe){rb1.selectedProperty().set(false);}
     }
     public void loadDataFromDatabase(String query,TableView tableView) {
         if(query.equals(""))
@@ -127,8 +138,7 @@ public class HelloApplication extends Application {
 
             try {
                 rs = query(query);
-            }catch (Exception ee)
-            {
+            }catch (Exception ee) {
                 return;
             }
 
@@ -157,7 +167,11 @@ public class HelloApplication extends Application {
             tableView.setItems(data);
             tableView.refresh();
 
-        } catch (SQLException e) {
+        }catch (NullPointerException npe)
+        {
+
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -172,11 +186,16 @@ public class HelloApplication extends Application {
             rs = stmt.executeQuery(query);
             if(rs.isClosed())
             {
-                throw new Exception();
+                rb1.selectedProperty().set(false);
+                rb2.selectedProperty().set(false);
+                rb3.selectedProperty().set(false);
+                rb4.selectedProperty().set(false);
+                rb5.selectedProperty().set(false);
+               throw new Exception();
             }
         }
         catch (SQLException sqle)
-        {sqle.printStackTrace();}
+        {}
 
         return rs;
     }
@@ -250,12 +269,12 @@ public class HelloApplication extends Application {
         box5.setSpacing(17);
         box6.setSpacing(17);
         RadioButton rb0 = new RadioButton();
-        RadioButton rb1 = new RadioButton();
-        RadioButton rb2 = new RadioButton();
-        RadioButton rb3 = new RadioButton();
-        RadioButton rb4 = new RadioButton();
-        RadioButton rb5 = new RadioButton();
-        RadioButton rb6 = new RadioButton();
+        rb1 = new RadioButton();
+        rb2 = new RadioButton();
+        rb3 = new RadioButton();
+        rb4 = new RadioButton();
+        rb5 = new RadioButton();
+        rb6 = new RadioButton();
         ToggleGroup tg = new ToggleGroup();
         rb0.setToggleGroup(tg);
         rb1.setToggleGroup(tg);
@@ -275,6 +294,8 @@ public class HelloApplication extends Application {
         rb1.selectedProperty().addListener((observable,oldValue,newValue)->{
             if(newValue)
             {
+                option1.setStyle("-fx-background-color: blue;");
+                a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
                 TextField textField = new TextField();
@@ -283,23 +304,19 @@ public class HelloApplication extends Application {
                     if (response == ButtonType.OK) {
                         CreateProfileZone(textField.getText());
                     }
+                    else
+                    {
+                        rb1.selectedProperty().set(false);
+                    }
                 });
-
-                try{
-                vbox.getChildren().set(1,spane);
-                vbox.setSpacing(70);
-                xlabel.setText("Home >> Grades");
-                option1.setStyle("-fx-background-color: blue;");
-                a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}catch (NullPointerException npe){}}
+               }
             else
             {
                 option1.setStyle("");
                 a.setStyle("");;
             }
         });
-        option1.setOnAction(e->{
-            rb1.selectedProperty().set(true);
-        });
+        option1.setOnAction(e->rb1.selectedProperty().set(true));
         Button option2 = new Button("",box2);
         rb2.selectedProperty().addListener((observable,oldValue,newValue) -> {
             if(newValue){
@@ -312,9 +329,7 @@ public class HelloApplication extends Application {
                 b.setStyle("");
             }
         });
-        option2.setOnAction(e->{
-            rb2.selectedProperty().set(true);
-        });
+        option2.setOnAction(e->rb2.selectedProperty().set(true));
         Button option3 = new Button("",box3);
         rb3.selectedProperty().addListener((observable,oldvalue,newvalue)->{
             if(newvalue){
