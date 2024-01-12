@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -43,6 +44,8 @@ public class HelloApplication extends Application {
 
     Label xlabel;
 
+    StackPane spane; // profile zone
+
     public void CreateCommandsZone()
     {
 
@@ -59,6 +62,58 @@ public class HelloApplication extends Application {
         Commands.setSpacing(50);
     }
 
+    public void CreateProfileZone(String name)
+    {
+        ResultSet rs = null;
+        try{
+         rs = query("Select * From Students " +
+                "Where Name = '" + name + "'");}catch (Exception ee)
+        {
+            return;
+        }
+        Rectangle r1 = new Rectangle(1500,800,Color.LIGHTBLUE);
+
+        Rectangle r2 = new Rectangle(1450,700,Color.WHITE);
+        VBox vox = new VBox();
+        vox.setPadding(new Insets(101,0,98,0));
+
+        String[] labels = {"Epoka ID No.:","ID Card No.:","Name:", "Surname:", "Birth Place:","Birthday:" ,
+                "Gender:", "Blood Group:", "Marital Status:", "Citizenship:", "Passport No.:"
+                , "Primary Email:", "Secondary Email:","Exam ID:","Status:","Enrollment Date:"};
+
+        int i = 0;
+        for (String labe : labels) {
+            StackPane stackPane = new StackPane();
+            Rectangle r3 = new Rectangle(1460,44);
+            if(i%2==0)
+            {
+                r3.setFill(Color.WHITE);
+                r3.setOnMouseEntered(e->r3.setFill(Color.GOLD));
+                r3.setOnMouseExited(e->r3.setFill(Color.WHITE));
+            }
+            else
+            {
+                r3.setFill(Color.LIGHTGRAY);
+                r3.setOnMouseEntered(e->r3.setFill(Color.DARKGOLDENROD));
+                r3.setOnMouseExited(e->r3.setFill(Color.LIGHTGRAY));
+            }
+            String column = null;
+            try{
+                column = rs.getString(i+1);}catch (SQLException sqle){sqle.printStackTrace();}
+            Label labe1 = new Label(labe+ "   " + column);
+
+            labe1.setFont(new Font("Helvetica",16));
+            stackPane.getChildren().addAll(r3,labe1);
+
+            vox.getChildren().add(stackPane);
+
+
+            i++;
+        }
+        spane = new StackPane(r1,r2,vox);
+        spane.setOnMouseEntered(e->r1.setFill(Color.DARKBLUE));
+        spane.setOnMouseExited(e->r1.setFill(Color.LIGHTBLUE));
+    }
     public void loadDataFromDatabase(String query,TableView tableView) {
         if(query.equals(""))
             return;
@@ -67,12 +122,16 @@ public class HelloApplication extends Application {
         tableView = new TableView();
         tableView.setMaxWidth(1500);
         Commands.getChildren().set(3,tableView);
+        ResultSet rs = null;
         try {
 
-            Connection c = DriverManager.getConnection("jdbc:sqlite:EIS.db");
-            // Execute SQL query
-            Statement stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+            try {
+                rs = query(query);
+            }catch (Exception ee)
+            {
+                return;
+            }
+
 
             // Iterate over the ResultSet
             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
@@ -102,6 +161,28 @@ public class HelloApplication extends Application {
             e.printStackTrace();
         }
     }
+
+    public ResultSet query(String query) throws Exception
+    {
+        ResultSet rs = null;
+        try {
+
+            // Execute SQL query
+            Statement stmt = connection.createStatement();
+            rs = stmt.executeQuery(query);
+            if(rs.isClosed())
+            {
+                throw new Exception();
+            }
+        }
+        catch (SQLException sqle)
+        {sqle.printStackTrace();}
+
+        return rs;
+    }
+
+
+
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("My Website Replica");
@@ -186,6 +267,7 @@ public class HelloApplication extends Application {
         Button option0 = new Button("",box0);
         option0.setOnAction(e->{
             vbox.getChildren().set(1,middleButtons);
+            vbox.setSpacing(100);
             xlabel.setText("Home");
             rb0.selectedProperty().set(true);
         });
@@ -193,9 +275,22 @@ public class HelloApplication extends Application {
         rb1.selectedProperty().addListener((observable,oldValue,newValue)->{
             if(newValue)
             {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
+                TextField textField = new TextField();
+                alert.getDialogPane().setContent(textField);
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        CreateProfileZone(textField.getText());
+                    }
+                });
+
+                try{
+                vbox.getChildren().set(1,spane);
+                vbox.setSpacing(70);
                 xlabel.setText("Home >> Grades");
                 option1.setStyle("-fx-background-color: blue;");
-                a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}
+                a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}catch (NullPointerException npe){}}
             else
             {
                 option1.setStyle("");
