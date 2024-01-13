@@ -33,6 +33,7 @@ import java.util.Scanner;
 public class HelloApplication extends Application {
     boolean pressed = false;
 
+    boolean byepokaid = false;
     static Connection connection;
     GridPane middleButtons;
 
@@ -56,7 +57,7 @@ public class HelloApplication extends Application {
     VBox Boux; // part of the profile zone
 
     ScrollPane gradesZone; // as the name implies its the grades zone
-
+    String Epoka_ID;//needed for the profile part
     public void CreateCommandsZone()
     {
 
@@ -77,6 +78,7 @@ public class HelloApplication extends Application {
     public void CreateProfileZone(String name)
     {
 
+        Epoka_ID = null;
         ResultSet rs = null;
         ImageView y = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\dictionary.gif"));
         ImageView x = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\search-file.gif"));
@@ -101,18 +103,22 @@ public class HelloApplication extends Application {
                     "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
                     "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
                     "AND Assignments.Course_ID = Courses.COurse_ID "+
-                    "AND Students.name = '" + name + "';",tableView);
+                    "AND Students.Epoka_ID = '" + Epoka_ID + "';",tableView);
         });
 
         Documents.setOnAction(e->{
             LoadCoursesToProfile("SELECT Type , info From Student_Documents " +
                     "JOIN Students ON Students.Epoka_ID = Student_Documents.Epoka_ID " +
-                    "WHERE Students.name = '" + name + "';",tableView);
+                    "WHERE Students.Epoka_ID = '" + Epoka_ID + "';",tableView);
         });
         HBox box = new HBox();
         try{
-         rs = query("Select * From Students " +
-                "Where Name = '" + name + "'");}catch (Exception ee)
+            if(byepokaid)
+                rs = query("Select * From Students " +
+                        "Where Epoka_ID = '" + name + "'");
+            else
+                rs = query("Select * From Students " +
+                        "Where Name = '" + name + "'");}catch (Exception ee)
         {
             return;
         }
@@ -120,8 +126,8 @@ public class HelloApplication extends Application {
         VBox vox = new VBox();
         vox.setPadding(new Insets(101,0,98,0));
 
-        String[] labels = {"Epoka ID No.:","ID Card No.:","Name:", "Surname:", "Birthday:","Birth Place:",
-                "Gender:", "Blood Group:", "Marital Status:", "Citizenship:", "Passport No.:"
+        String[] labels = {"Epoka ID No.:","ID Card No.:","Name:", "Surname:", "Birthday:","Gender:","Birth Place:"
+                , "Blood Group:", "Marital Status:", "Citizenship:", "Passport No.:"
                 , "Primary Email:", "Secondary Email:","Exam ID:","Status:","CGPA:" , "Enrollment Date:"};
 
         int i = 0;
@@ -143,6 +149,8 @@ public class HelloApplication extends Application {
             String column = null;
             try{
                 column = rs.getString(i+1);}catch (SQLException sqle){sqle.printStackTrace();}
+            if(i==0)
+                Epoka_ID=column;
             if(i==14)
             {
                 if(column.equals("0"))
@@ -179,16 +187,24 @@ public class HelloApplication extends Application {
 
     public void CreateGradesZone(String name)
     {
+        String lastpart;
+        if(byepokaid)
+            lastpart = "AND Students.Epoka_ID = '" + name + "'";
+        else
+            lastpart = "AND Students.name = '" + name + "'";
         gradesZone = new ScrollPane();
         VBox GradesZone = new VBox();
         ResultSet rs = null;
         try{
-        rs = query("SELECT Code , Courses.Course_ID "  +
-                "FROM Students,Interim_Grades,Assignments,Courses " +
-                "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
-                "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
-                "AND Assignments.Course_ID = Courses.Course_ID "+
-                "AND Students.name = '" + name + "';");
+
+            String sqlQuery = "SELECT Code , Courses.Course_ID "  +
+                    "FROM Students,Interim_Grades,Assignments,Courses " +
+                    "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
+                    "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
+                    "AND Assignments.Course_ID = Courses.Course_ID "+
+                    lastpart + ";";
+            System.out.println(sqlQuery);
+        rs = query(sqlQuery);
 
         while(rs.next())
             {
@@ -206,7 +222,7 @@ public class HelloApplication extends Application {
                         "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID\n" +
                         "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID\n" +
                         "AND Assignments.Course_ID = Courses.Course_ID\n" +
-                        "AND Students.name = '" + name + "'\n" +
+                         lastpart + " "+
                         "AND Courses.Course_ID = '" + rs.getString("Course_ID") + "';",table);
                 GradesZone.getChildren().add(boz);
             }
@@ -222,6 +238,11 @@ public class HelloApplication extends Application {
 
     public void CreateAttendanceZone(String name)
     {
+        String lastpart;
+        if(byepokaid)
+            lastpart = "Students.Epoka_ID = '" + name + "'";
+        else
+            lastpart = "Students.name = '" + name + "'";
         gradesZone = new ScrollPane();
         VBox GradesZone = new VBox();
         ResultSet rs = null;
@@ -230,8 +251,8 @@ public class HelloApplication extends Application {
                     "FROM Students,Interim_Grades,Assignments,Courses " +
                     "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
                     "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
-                    "AND Assignments.Course_ID = Courses.Course_ID "+
-                    "AND Students.name = '" + name + "';");
+                    "AND Assignments.Course_ID = Courses.Course_ID AND "+
+                    lastpart + ";");
 
             while(rs.next())
             {
@@ -246,7 +267,7 @@ public class HelloApplication extends Application {
                 boz.getChildren().addAll(hoz,table);
                 loadDataFromDatabase("SELECT Attendence.* " +
                         "FROM Students,Attendence " +
-                        "WHERE Students.name = '" + name + "'\n" +
+                        "WHERE " + lastpart + " " +
                         "AND Attendence.Course_ID = '" + rs.getString("Course_ID") + "';",table);
                 GradesZone.getChildren().add(boz);
             }
@@ -409,6 +430,76 @@ public class HelloApplication extends Application {
         return rs;
     }
 
+    public void CreateAlert(int buttonnumber)
+    {
+        ImageView namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+        ImageView IDgif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\card.gif"));
+        namegif.setFitWidth(50);
+        namegif.setFitHeight(50);
+        IDgif.setFitWidth(50);
+        IDgif.setFitHeight(50);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.getDialogPane().setStyle("-fx-background-color: white;");
+        RadioButton ID = new RadioButton("");
+        RadioButton Name = new RadioButton("Name");
+        if(buttonnumber<4){
+            alert.setHeaderText("Write te name or Epoka ID of the Student");
+            ID.setText("Epoka ID");}
+        else if(buttonnumber==6){
+            alert.setHeaderText("Write te name or ID of the Lecturer");
+            ID.setText("Lecturer ID");}
+        else{
+            alert.setHeaderText("Write te name or ID of the Course");
+            ID.setText("Course ID");}
+        ToggleGroup tg = new ToggleGroup();
+        ID.setGraphic(IDgif);
+        ID.setToggleGroup(tg);
+
+        Name.setGraphic(namegif);
+        Name.setToggleGroup(tg);
+
+        HBox radiobuttons = new HBox(ID,Name);
+        radiobuttons.setSpacing(20);
+        TextField textField = new TextField();
+        VBox content = new VBox(textField,radiobuttons);
+        alert.getDialogPane().setContent(content);
+        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.setDisable(true);
+        tg.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            okButton.setDisable(newValue == null);
+        });
+        Name.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            byepokaid=false;
+        });
+        ID.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            byepokaid=true;
+        });
+
+        alert.showAndWait().ifPresent(response -> {
+            switch (buttonnumber) {
+                case 1:
+                    if (response == ButtonType.OK) {
+                         CreateProfileZone(textField.getText());
+                    } else {
+                     rb1.selectedProperty().set(false);
+                    } break;
+                case 2:
+                    if (response == ButtonType.OK) {
+                        CreateGradesZone(textField.getText());
+                    } else {
+                        rb2.selectedProperty().set(false);
+                    } break;
+                case 3:
+                    if (response == ButtonType.OK) {
+                        CreateAttendanceZone(textField.getText());
+                    } else {
+                        rb3.selectedProperty().set(false);
+                    } break;
+            }
+        });
+        ID.setStyle("-fx-font: 20px; -fx-font-family: 'Courier New';");
+        Name.setStyle("-fx-font: 20px; -fx-font-family: 'Courier New';");
+    }
 
 
     @Override
@@ -505,19 +596,7 @@ public class HelloApplication extends Application {
             {
                 option1.setStyle("-fx-background-color: blue;");
                 b.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
-                TextField textField = new TextField();
-                alert.getDialogPane().setContent(textField);
-                alert.showAndWait().ifPresent(response -> {
-                    if (response == ButtonType.OK) {
-                        CreateProfileZone(textField.getText());
-                    }
-                    else
-                    {
-                        rb1.selectedProperty().set(false);
-                    }
-                });
+                CreateAlert(1);
                }
             else
             {
@@ -533,19 +612,7 @@ public class HelloApplication extends Application {
                 option2.setStyle("-fx-background-color: blue;");
                 a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
-                TextField textField = new TextField();
-                alert.getDialogPane().setContent(textField);
-                alert.showAndWait().ifPresent(response -> {
-                    if (response == ButtonType.OK) {
-                        CreateGradesZone(textField.getText());
-                    }
-                    else
-                    {
-                        rb2.selectedProperty().set(false);
-                    }
-                });
+                CreateAlert(2);
             }
             else
             {
@@ -561,19 +628,7 @@ public class HelloApplication extends Application {
                 option3.setStyle("-fx-background-color: blue;");
                 c.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
-                TextField textField = new TextField();
-                alert.getDialogPane().setContent(textField);
-                alert.showAndWait().ifPresent(response -> {
-                    if (response == ButtonType.OK) {
-                        CreateAttendanceZone(textField.getText());
-                    }
-                    else
-                    {
-                        rb3.selectedProperty().set(false);
-                    }
-                });
+                CreateAlert(3);
 
             }
             else
