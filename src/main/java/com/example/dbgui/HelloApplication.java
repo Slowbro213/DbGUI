@@ -44,6 +44,7 @@ public class HelloApplication extends Application {
 
     Label xlabel;
 
+    VBox boz;
     RadioButton rb1;
     RadioButton rb2;
     RadioButton rb3;
@@ -52,7 +53,9 @@ public class HelloApplication extends Application {
     RadioButton rb6;
 
     StackPane spane; // profile zone
-    VBox Boux;
+    VBox Boux; // part of the profile zone
+
+    ScrollPane gradesZone; // as the name implies its the grades zone
 
     public void CreateCommandsZone()
     {
@@ -156,8 +159,50 @@ public class HelloApplication extends Application {
             box.setPadding(new Insets(0,0,0,200));
             vbox.getChildren().set(1,box);
             vbox.setSpacing(10);
-            xlabel.setText("Home >> Grades");
+            xlabel.setText("Home >> Profile");
         }catch (NullPointerException npe){rb1.selectedProperty().set(false);}
+    }
+
+    public void CreateGradesZone(String name)
+    {
+        gradesZone = new ScrollPane();
+        VBox GradesZone = new VBox();
+        ResultSet rs = null;
+        try{
+        rs = query("SELECT Code , Courses.Course_ID "  +
+                "FROM Students,Interim_Grades,Assignments,Courses " +
+                "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
+                "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
+                "AND Assignments.Course_ID = Courses.Course_ID "+
+                "AND Students.name = '" + name + "';");
+
+        while(rs.next())
+            {
+                boz = new VBox();
+                StackPane hoz = new StackPane();
+                Rectangle r = new Rectangle(1000,50,Color.PURPLE);
+                Label laabel = new Label( rs.getString("Code"));
+                laabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+                laabel.setFont(new Font("Helvetica",20));
+                hoz.getChildren().addAll(r,laabel);
+                TableView table = new TableView();
+                boz.getChildren().addAll(hoz,table);
+                loadDataFromDatabase(" SELECT Interim_Grades.grade , Assignments.weight , Assignments.Type , Assignments.Class_Average\n" +
+                        "FROM Students,Interim_Grades,Assignments,Courses\n" +
+                        "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID\n" +
+                        "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID\n" +
+                        "AND Assignments.Course_ID = Courses.Course_ID\n" +
+                        "AND Students.name = '" + name + "'\n" +
+                        "AND Courses.Course_ID = '" + rs.getString("Course_ID") + "';",table);
+                GradesZone.getChildren().add(boz);
+            }
+
+            gradesZone.setContent(GradesZone);
+            vbox.getChildren().set(1,gradesZone);
+
+        }catch (Exception ee){ee.printStackTrace();}
+
+
     }
     public void loadDataFromDatabase(String query,TableView tableView) {
         if(query.equals(""))
@@ -166,6 +211,11 @@ public class HelloApplication extends Application {
 
         tableView = new TableView();
         tableView.setMaxWidth(1500);
+        if(rb2.selectedProperty().get())
+        {
+            boz.getChildren().set(1,tableView);
+        }
+        else
         Commands.getChildren().set(3,tableView);
         ResultSet rs = null;
         try {
@@ -399,7 +449,7 @@ public class HelloApplication extends Application {
             if(newValue)
             {
                 option1.setStyle("-fx-background-color: blue;");
-                a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+                b.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
                 TextField textField = new TextField();
@@ -417,20 +467,35 @@ public class HelloApplication extends Application {
             else
             {
                 option1.setStyle("");
-                a.setStyle("");;
+                b.setStyle("");;
             }
         });
         option1.setOnAction(e->rb1.selectedProperty().set(true));
         Button option2 = new Button("",box1);
         rb2.selectedProperty().addListener((observable,oldValue,newValue) -> {
             if(newValue){
-                xlabel.setText("Home >> Profile");
+                xlabel.setText("Home >> Grades");
                 option2.setStyle("-fx-background-color: blue;");
-                b.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}
+                a.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
+                TextField textField = new TextField();
+                alert.getDialogPane().setContent(textField);
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        CreateGradesZone(textField.getText());
+                    }
+                    else
+                    {
+                        rb2.selectedProperty().set(false);
+                    }
+                });
+            }
             else
             {
                 option2.setStyle("");
-                b.setStyle("");
+                a.setStyle("");
             }
         });
         option2.setOnAction(e->rb2.selectedProperty().set(true));
