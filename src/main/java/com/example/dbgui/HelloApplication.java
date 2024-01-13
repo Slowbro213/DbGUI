@@ -58,10 +58,9 @@ public class HelloApplication extends Application {
 
     ScrollPane gradesZone; // as the name implies its the grades zone
     String Epoka_ID;//needed for the profile part
-    public void CreateCommandsZone()
-    {
+    public void CreateCommandsZone() {
 
-        Label l = new Label("Enter An SQL Command!");
+        Label l = new Label("Enter Any SQL Command!");
         l.setStyle("-fx-font-weight: bold;");
         l.setFont(new Font("Helvetica",20));
         Button query = new Button("Execute Query");
@@ -75,8 +74,7 @@ public class HelloApplication extends Application {
         Commands.setSpacing(50);
     }
 
-    public void CreateProfileZone(String name)
-    {
+    public void CreateProfileZone(String name) {
 
         Epoka_ID = null;
         ResultSet rs = null;
@@ -185,8 +183,7 @@ public class HelloApplication extends Application {
         }catch (NullPointerException npe){rb1.selectedProperty().set(false);}
     }
 
-    public void CreateGradesZone(String name)
-    {
+    public void CreateGradesZone(String name) {
         String lastpart;
         if(byepokaid)
             lastpart = "AND Students.Epoka_ID = '" + name + "'";
@@ -236,8 +233,7 @@ public class HelloApplication extends Application {
 
     }
 
-    public void CreateAttendanceZone(String name)
-    {
+    public void CreateAttendanceZone(String name) {
         String lastpart;
         if(byepokaid)
             lastpart = "Students.Epoka_ID = '" + name + "'";
@@ -335,8 +331,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    public void LoadCoursesToProfile(String query, TableView tableView)
-    {
+    public void LoadCoursesToProfile(String query, TableView tableView) {
         if(query.equals(""))
             return;
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
@@ -406,8 +401,7 @@ public class HelloApplication extends Application {
             e.printStackTrace();
         }
     }
-    public ResultSet query(String query) throws Exception
-    {
+    public ResultSet query(String query) throws Exception {
         ResultSet rs = null;
         try {
 
@@ -430,8 +424,7 @@ public class HelloApplication extends Application {
         return rs;
     }
 
-    public void CreateAlert(int buttonnumber)
-    {
+    public void CreateAlert(int buttonnumber) {
         ImageView top1 = new ImageView();
         ImageView namegif = new ImageView();
         Label selection = new Label();
@@ -473,13 +466,13 @@ public class HelloApplication extends Application {
         RadioButton ID = new RadioButton("");
         RadioButton Name = new RadioButton("Name");
         if(buttonnumber<4){
-            alert.setHeaderText("Write te name or Epoka ID of the Student");
+            alert.setHeaderText("Write the name or Epoka ID of the Student");
             ID.setText("Epoka ID");}
         else if(buttonnumber==5){
-            alert.setHeaderText("Write te name or ID of the Lecturer");
+            alert.setHeaderText("Write the name or ID of the Lecturer");
             ID.setText("Lecturer ID");}
         else{
-            alert.setHeaderText("Write te name or ID of the Course");
+            alert.setHeaderText("Write the name or ID of the Course");
             ID.setText("Course ID");}
         ToggleGroup tg = new ToggleGroup();
         ID.setGraphic(IDgif);
@@ -491,7 +484,7 @@ public class HelloApplication extends Application {
         HBox radiobuttons = new HBox(ID,Name);
         radiobuttons.setSpacing(20);
         TextField textField = new TextField();
-        textField.setPromptText("Enter your text here");
+        textField.setPromptText("Enter Name or ID here!");
         VBox content = new VBox(top,textField,radiobuttons);
         alert.getDialogPane().setContent(content);
         Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
