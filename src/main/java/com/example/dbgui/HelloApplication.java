@@ -432,12 +432,42 @@ public class HelloApplication extends Application {
 
     public void CreateAlert(int buttonnumber)
     {
-        ImageView namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+        ImageView top1 = new ImageView();
+        ImageView namegif = new ImageView();
+        Label selection = new Label();
+        selection.setPadding(new Insets(25,0,0,0));
+        selection.setStyle("-fx-font-weight: bold;");
+        selection.setFont(new Font("Helvetica",20));
+        switch (buttonnumber) {
+            case 1:
+                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\library.gif"));
+                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                selection.setText("Students Profile"); break;
+            case 2:
+                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\passed.gif"));
+                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                selection.setText("Students Grade"); break;
+            case 3:
+                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\upcoming.gif"));
+                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                selection.setText("Students Attendence"); break;
+            case 4:
+                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\ebook.gif"));
+                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\online-learning.gif"));
+                selection.setText("Courses Information"); break;
+            case 5:
+                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\presentation.gif"));
+                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                selection.setText("Lecturers Profile"); break;
+        }
+        HBox top = new HBox(selection,top1);
         ImageView IDgif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\card.gif"));
-        namegif.setFitWidth(50);
-        namegif.setFitHeight(50);
-        IDgif.setFitWidth(50);
-        IDgif.setFitHeight(50);
+        namegif.setFitWidth(80);
+        namegif.setFitHeight(80);
+        IDgif.setFitWidth(80);
+        IDgif.setFitHeight(80);
+        top1.setFitHeight(100);
+        top1.setFitWidth(100);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.getDialogPane().setStyle("-fx-background-color: white;");
         RadioButton ID = new RadioButton("");
@@ -445,7 +475,7 @@ public class HelloApplication extends Application {
         if(buttonnumber<4){
             alert.setHeaderText("Write te name or Epoka ID of the Student");
             ID.setText("Epoka ID");}
-        else if(buttonnumber==6){
+        else if(buttonnumber==5){
             alert.setHeaderText("Write te name or ID of the Lecturer");
             ID.setText("Lecturer ID");}
         else{
@@ -461,7 +491,8 @@ public class HelloApplication extends Application {
         HBox radiobuttons = new HBox(ID,Name);
         radiobuttons.setSpacing(20);
         TextField textField = new TextField();
-        VBox content = new VBox(textField,radiobuttons);
+        textField.setPromptText("Enter your text here");
+        VBox content = new VBox(top,textField,radiobuttons);
         alert.getDialogPane().setContent(content);
         Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
         okButton.setDisable(true);
@@ -643,7 +674,10 @@ public class HelloApplication extends Application {
             if(newvalue){
                 xlabel.setText("Home >> Courses");
                 option4.setStyle("-fx-background-color: blue;");
-                d.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}
+                d.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+                CreateAlert(4);
+            }
+
             else
             {
                 option4.setStyle("");
@@ -656,7 +690,9 @@ public class HelloApplication extends Application {
             if(newvalue){
                 xlabel.setText("Home >> Lecturers");
                 option5.setStyle("-fx-background-color: blue;");
-                e_.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}
+                e_.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            CreateAlert(5);
+            }
             else
             {
                 option5.setStyle("");
