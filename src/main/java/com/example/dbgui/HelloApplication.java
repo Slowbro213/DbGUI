@@ -194,7 +194,7 @@ public class HelloApplication extends Application {
             {
                 boz = new VBox();
                 StackPane hoz = new StackPane();
-                Rectangle r = new Rectangle(1000,50,Color.PURPLE);
+                Rectangle r = new Rectangle(1000,50,Color.web("#584573"));
                 Label laabel = new Label( rs.getString("Code"));
                 laabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
                 laabel.setFont(new Font("Helvetica",20));
@@ -219,6 +219,45 @@ public class HelloApplication extends Application {
 
 
     }
+
+    public void CreateAttendanceZone(String name)
+    {
+        gradesZone = new ScrollPane();
+        VBox GradesZone = new VBox();
+        ResultSet rs = null;
+        try{
+            rs = query("SELECT Code , Courses.Course_ID "  +
+                    "FROM Students,Interim_Grades,Assignments,Courses " +
+                    "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
+                    "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
+                    "AND Assignments.Course_ID = Courses.Course_ID "+
+                    "AND Students.name = '" + name + "';");
+
+            while(rs.next())
+            {
+                boz = new VBox();
+                StackPane hoz = new StackPane();
+                Rectangle r = new Rectangle(1000,50,Color.web("#584573"));
+                Label laabel = new Label( rs.getString("Code"));
+                laabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+                laabel.setFont(new Font("Helvetica",20));
+                hoz.getChildren().addAll(r,laabel);
+                TableView table = new TableView();
+                boz.getChildren().addAll(hoz,table);
+                loadDataFromDatabase("SELECT Attendence.* " +
+                        "FROM Students,Attendence " +
+                        "WHERE Students.name = '" + name + "'\n" +
+                        "AND Attendence.Course_ID = '" + rs.getString("Course_ID") + "';",table);
+                GradesZone.getChildren().add(boz);
+            }
+
+            gradesZone.setContent(GradesZone);
+            vbox.getChildren().set(1,gradesZone);
+            vbox.setSpacing(100);
+
+        }catch (Exception ee){ee.printStackTrace();}
+
+    }
     public void loadDataFromDatabase(String query,TableView tableView) {
         if(query.equals(""))
             return;
@@ -226,7 +265,7 @@ public class HelloApplication extends Application {
 
         tableView = new TableView();
         tableView.setMaxWidth(1500);
-        if(rb2.selectedProperty().get())
+        if(rb2.selectedProperty().get() || rb3.selectedProperty().get())
         {
             boz.getChildren().set(1,tableView);
         }
@@ -520,7 +559,23 @@ public class HelloApplication extends Application {
             if(newvalue){
                 xlabel.setText("Home >> Attendance");
                 option3.setStyle("-fx-background-color: blue;");
-                c.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");}
+                c.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setHeaderText("Write te name of the student (later,\nit will be Epoka_ID)");
+                TextField textField = new TextField();
+                alert.getDialogPane().setContent(textField);
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        CreateAttendanceZone(textField.getText());
+                    }
+                    else
+                    {
+                        rb3.selectedProperty().set(false);
+                    }
+                });
+
+            }
             else
             {
                 option3.setStyle("");
