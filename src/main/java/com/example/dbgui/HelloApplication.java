@@ -102,7 +102,7 @@ public class HelloApplication extends Application {
         });
 
         Documents.setOnAction(e->{
-            LoadCoursesToProfile("SELECT * From Student_Documents " +
+            LoadCoursesToProfile("SELECT Type , info From Student_Documents " +
                     "JOIN Students ON Students.Epoka_ID = Student_Documents.Epoka_ID " +
                     "WHERE Students.name = '" + name + "';",tableView);
         });
@@ -113,13 +113,13 @@ public class HelloApplication extends Application {
         {
             return;
         }
-        Rectangle r1 = new Rectangle(670,714,Color.web("#00BFFF"));
+        Rectangle r1 = new Rectangle(670,758,Color.web("#00BFFF"));
         VBox vox = new VBox();
         vox.setPadding(new Insets(101,0,98,0));
 
-        String[] labels = {"Epoka ID No.:","ID Card No.:","Name:", "Surname:", "Birth Place:","Birthday:" ,
+        String[] labels = {"Epoka ID No.:","ID Card No.:","Name:", "Surname:", "Birthday:","Birth Place:",
                 "Gender:", "Blood Group:", "Marital Status:", "Citizenship:", "Passport No.:"
-                , "Primary Email:", "Secondary Email:","Exam ID:","Status:","Enrollment Date:"};
+                , "Primary Email:", "Secondary Email:","Exam ID:","Status:","CGPA:" , "Enrollment Date:"};
 
         int i = 0;
         for (String labe : labels) {
