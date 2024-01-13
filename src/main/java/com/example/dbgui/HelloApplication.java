@@ -128,13 +128,13 @@ public class HelloApplication extends Application {
             if(i%2==0)
             {
                 r3.setFill(Color.WHITE);
-                r3.setOnMouseEntered(e->r3.setFill(Color.GOLD));
+                r3.setOnMouseEntered(e->r3.setFill(Color.web("#B9F2FF")));
                 r3.setOnMouseExited(e->r3.setFill(Color.WHITE));
             }
             else
             {
                 r3.setFill(Color.web("#EEEEEE"));
-                r3.setOnMouseEntered(e->r3.setFill(Color.rgb(205, 173, 0)));
+                r3.setOnMouseEntered(e->r3.setFill(Color.web("#B9F2FF")));
                 r3.setOnMouseExited(e->r3.setFill(Color.web( "#EEEEEE")));
             }
             String column = null;
