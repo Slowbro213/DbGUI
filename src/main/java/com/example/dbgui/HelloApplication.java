@@ -143,6 +143,20 @@ public class HelloApplication extends Application {
             String column = null;
             try{
                 column = rs.getString(i+1);}catch (SQLException sqle){sqle.printStackTrace();}
+            if(i==14)
+            {
+                if(column.equals("0"))
+                    column="Student";
+                else
+                    column="Graduated";
+            }
+            else if(i==8)
+            {
+                if(column.equals("0"))
+                    column="Bachelor";
+                else
+                    column="Married";
+            }
             Label labe1 = new Label(labe+ "   " + column);
 
             labe1.setFont(new Font("Helvetica",16));
@@ -199,6 +213,7 @@ public class HelloApplication extends Application {
 
             gradesZone.setContent(GradesZone);
             vbox.getChildren().set(1,gradesZone);
+            vbox.setSpacing(100);
 
         }catch (Exception ee){ee.printStackTrace();}
 
@@ -314,7 +329,8 @@ public class HelloApplication extends Application {
             while (rs.next()) {
                 ObservableList<String> row = FXCollections.observableArrayList();
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                    row.add(rs.getString(i));
+                    String s = rs.getString(i);
+                    row.add(s);
                 }
                 data.add(row);
             }
