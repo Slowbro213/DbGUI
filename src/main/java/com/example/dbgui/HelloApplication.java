@@ -78,8 +78,8 @@ public class HelloApplication extends Application {
 
         Epoka_ID = null;
         ResultSet rs = null;
-        ImageView y = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\dictionary.gif"));
-        ImageView x = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\search-file.gif"));
+        ImageView y = new ImageView(new Image("file:Gifs\\dictionary.gif"));
+        ImageView x = new ImageView(new Image("file:Gifs\\search-file.gif"));
         y.setFitHeight(100);
         y.setFitWidth(100);
         x.setFitHeight(95);
@@ -433,28 +433,28 @@ public class HelloApplication extends Application {
         selection.setFont(new Font("Helvetica",20));
         switch (buttonnumber) {
             case 1:
-                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\library.gif"));
-                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                top1 = new ImageView(new Image("file:Gifs\\library.gif"));
+                namegif = new ImageView(new Image("file:Gifs\\face-scan.gif"));
                 selection.setText("Students Profile"); break;
             case 2:
-                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\passed.gif"));
-                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                top1 = new ImageView(new Image("file:Gifs\\passed.gif"));
+                namegif = new ImageView(new Image("file:Gifs\\face-scan.gif"));
                 selection.setText("Students Grade"); break;
             case 3:
-                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\upcoming.gif"));
-                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                top1 = new ImageView(new Image("file:Gifs\\upcoming.gif"));
+                namegif = new ImageView(new Image("file:Gifs\\face-scan.gif"));
                 selection.setText("Students Attendence"); break;
             case 4:
-                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\ebook.gif"));
-                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\online-learning.gif"));
+                top1 = new ImageView(new Image("file:Gifs\\ebook.gif"));
+                namegif = new ImageView(new Image("file:Gifs\\online-learning.gif"));
                 selection.setText("Courses Information"); break;
             case 5:
-                top1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\presentation.gif"));
-                namegif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\face-scan.gif"));
+                top1 = new ImageView(new Image("file:Gifs\\presentation.gif"));
+                namegif = new ImageView(new Image("file:Gifs\\face-scan.gif"));
                 selection.setText("Lecturers Profile"); break;
         }
         HBox top = new HBox(selection,top1);
-        ImageView IDgif = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\card.gif"));
+        ImageView IDgif = new ImageView(new Image("file:Gifs\\card.gif"));
         namegif.setFitWidth(80);
         namegif.setFitHeight(80);
         IDgif.setFitWidth(80);
@@ -533,7 +533,7 @@ public class HelloApplication extends Application {
         CreateCommandsZone();
         // Top blue bar
         StackPane sp = new StackPane();
-        Image x = new Image("file:" + "C:\\Users\\Perdorues\\Desktop\\lol\\Screenshot 2024-01-10 193319.png");
+        Image x = new Image("file:" + "Images\\Screenshot 2024-01-10 193319.png");
         ImageView y = new ImageView(x);
         HBox box = new HBox();
         box.setPadding(new Insets(10,10,10,10));
@@ -550,13 +550,13 @@ public class HelloApplication extends Application {
         // Left part with options
         VBox leftOptions = new VBox();
         leftOptions.setStyle("-fx-background-color: #F5F5F5");
-        ImageView zero = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\home.png"));
-        ImageView one = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\grades.png"));
-        ImageView two = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\profile.jpg"));
-        ImageView three = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\attendences.png"));
-        ImageView four= new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\courses.png"));
-        ImageView five= new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\Lecturer.png"));
-        ImageView six= new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\SQLICON.png"));
+        ImageView zero = new ImageView(new Image("file:Images\\home.png"));
+        ImageView one = new ImageView(new Image("file:Images\\grades.png"));
+        ImageView two = new ImageView(new Image("file:Images\\profile.jpg"));
+        ImageView three = new ImageView(new Image("file:Images\\attendences.png"));
+        ImageView four= new ImageView(new Image("file:Images\\courses.png"));
+        ImageView five= new ImageView(new Image("file:Images\\Lecturer.png"));
+        ImageView six= new ImageView(new Image("file:Images\\SQLICON.png"));
         zero.setFitHeight(45);
         zero.setFitWidth(45);
         one.setFitHeight(45);
@@ -720,11 +720,11 @@ public class HelloApplication extends Application {
 
         // Big colorful buttons in the middle
         int size = 90;
-        ImageView one1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\grades.png"));
-        ImageView two1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\profile.jpg"));
-        ImageView three1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\attendences.png"));
-        ImageView four1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\courses.png"));
-        ImageView five1 = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\Lecturer.png"));
+        ImageView one1 = new ImageView(new Image("file:Images\\grades.png"));
+        ImageView two1 = new ImageView(new Image("file:Images\\profile.jpg"));
+        ImageView three1 = new ImageView(new Image("file:Images\\attendences.png"));
+        ImageView four1 = new ImageView(new Image("file:Images\\courses.png"));
+        ImageView five1 = new ImageView(new Image("file:Images\\Lecturer.png"));
         one1.setFitHeight(size);
         one1.setFitWidth(size);
         two1.setFitWidth(size);
