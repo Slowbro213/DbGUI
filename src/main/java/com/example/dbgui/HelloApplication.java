@@ -75,29 +75,29 @@ public class HelloApplication extends Application {
     {
 
         ResultSet rs = null;
-        ImageView y = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\Courses2.png"));
-        ImageView x = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\DocumentsICON.png"));
-        y.setFitHeight(50);
-        y.setFitWidth(50);
-        x.setFitHeight(50);
-        x.setFitWidth(50);
+        ImageView y = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\dictionary.gif"));
+        ImageView x = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\search-file.gif"));
+        y.setFitHeight(100);
+        y.setFitWidth(100);
+        x.setFitHeight(95);
+        x.setFitWidth(100);
         Button Courses = new Button(" ",y);
         Courses.setStyle("-fx-background-color: white");
         Button Documents = new Button("",x);
         Documents.setStyle("-fx-background-color: white");
         TableView tableView = new TableView();
-        tableView.setMinWidth(700);
+        tableView.setMinWidth(300);
         HBox buttons = new HBox(Courses,Documents);
         buttons.setSpacing(60);
         Boux = new VBox(buttons , tableView);
         Boux.setPadding(new Insets(100,50,0,0));
         Boux.setSpacing(100);
         Courses.setOnAction(e->{
-            LoadCoursesToProfile("SELECT Courses.* "  +
+            LoadCoursesToProfile("SELECT Courses.Code , Courses.Ects  "  +
                     "FROM Students,Interim_Grades,Assignments,Courses " +
                     "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
                     "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
-                    "AND Assignments.Course_ID = Courses.COurse_ID " +
+                    "AND Assignments.Course_ID = Courses.COurse_ID "+
                     "AND Students.name = '" + name + "';",tableView);
         });
 
@@ -113,7 +113,7 @@ public class HelloApplication extends Application {
         {
             return;
         }
-        Rectangle r1 = new Rectangle(700,750,Color.web("#00BFFF"));
+        Rectangle r1 = new Rectangle(670,714,Color.web("#00BFFF"));
         VBox vox = new VBox();
         vox.setPadding(new Insets(101,0,98,0));
 
@@ -153,8 +153,9 @@ public class HelloApplication extends Application {
         spane = new StackPane(r1,vox);
         try{
             box.getChildren().addAll(Boux,spane);
+            box.setPadding(new Insets(0,0,0,200));
             vbox.getChildren().set(1,box);
-            vbox.setSpacing(70);
+            vbox.setSpacing(10);
             xlabel.setText("Home >> Grades");
         }catch (NullPointerException npe){rb1.selectedProperty().set(false);}
     }
@@ -216,8 +217,8 @@ public class HelloApplication extends Application {
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
 
         tableView = new TableView();
-        tableView.setMinWidth(700);
-        tableView.setMaxWidth(700);
+        tableView.setMinWidth(300);
+        tableView.setMaxWidth(300);
         tableView.setStyle("-fx-font: 14px \"Segoe UI\"; -fx-text-fill: black;");
         Boux.getChildren().set(1,tableView);
         ResultSet rs = null;
