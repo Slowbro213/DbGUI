@@ -52,6 +52,7 @@ public class HelloApplication extends Application {
     RadioButton rb6;
 
     StackPane spane; // profile zone
+    VBox Boux;
 
     public void CreateCommandsZone()
     {
@@ -72,16 +73,47 @@ public class HelloApplication extends Application {
 
     public void CreateProfileZone(String name)
     {
+
         ResultSet rs = null;
+        ImageView y = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\Courses2.png"));
+        ImageView x = new ImageView(new Image("file:C:\\Users\\Perdorues\\Downloads\\DocumentsICON.png"));
+        y.setFitHeight(50);
+        y.setFitWidth(50);
+        x.setFitHeight(50);
+        x.setFitWidth(50);
+        Button Courses = new Button(" ",y);
+        Courses.setStyle("-fx-background-color: white");
+        Button Documents = new Button("",x);
+        Documents.setStyle("-fx-background-color: white");
+        TableView tableView = new TableView();
+        tableView.setMinWidth(700);
+        HBox buttons = new HBox(Courses,Documents);
+        buttons.setSpacing(60);
+        Boux = new VBox(buttons , tableView);
+        Boux.setPadding(new Insets(100,50,0,0));
+        Boux.setSpacing(100);
+        Courses.setOnAction(e->{
+            LoadCoursesToProfile("SELECT Courses.* "  +
+                    "FROM Students,Interim_Grades,Assignments,Courses " +
+                    "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
+                    "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
+                    "AND Assignments.Course_ID = Courses.COurse_ID " +
+                    "AND Students.name = '" + name + "';",tableView);
+        });
+
+        Documents.setOnAction(e->{
+            LoadCoursesToProfile("SELECT * From Student_Documents " +
+                    "JOIN Students ON Students.Epoka_ID = Student_Documents.Epoka_ID " +
+                    "WHERE Students.name = '" + name + "';",tableView);
+        });
+        HBox box = new HBox();
         try{
          rs = query("Select * From Students " +
                 "Where Name = '" + name + "'");}catch (Exception ee)
         {
             return;
         }
-        Rectangle r1 = new Rectangle(1500,800,Color.LIGHTBLUE);
-
-        Rectangle r2 = new Rectangle(1450,700,Color.WHITE);
+        Rectangle r1 = new Rectangle(700,750,Color.web("#00BFFF"));
         VBox vox = new VBox();
         vox.setPadding(new Insets(101,0,98,0));
 
@@ -92,7 +124,7 @@ public class HelloApplication extends Application {
         int i = 0;
         for (String labe : labels) {
             StackPane stackPane = new StackPane();
-            Rectangle r3 = new Rectangle(1460,44);
+            Rectangle r3 = new Rectangle(660,44);
             if(i%2==0)
             {
                 r3.setFill(Color.WHITE);
@@ -101,9 +133,9 @@ public class HelloApplication extends Application {
             }
             else
             {
-                r3.setFill(Color.LIGHTGRAY);
-                r3.setOnMouseEntered(e->r3.setFill(Color.DARKGOLDENROD));
-                r3.setOnMouseExited(e->r3.setFill(Color.LIGHTGRAY));
+                r3.setFill(Color.web("#EEEEEE"));
+                r3.setOnMouseEntered(e->r3.setFill(Color.rgb(205, 173, 0)));
+                r3.setOnMouseExited(e->r3.setFill(Color.web( "#EEEEEE")));
             }
             String column = null;
             try{
@@ -118,9 +150,10 @@ public class HelloApplication extends Application {
 
             i++;
         }
-        spane = new StackPane(r1,r2,vox);
+        spane = new StackPane(r1,vox);
         try{
-            vbox.getChildren().set(1,spane);
+            box.getChildren().addAll(Boux,spane);
+            vbox.getChildren().set(1,box);
             vbox.setSpacing(70);
             xlabel.setText("Home >> Grades");
         }catch (NullPointerException npe){rb1.selectedProperty().set(false);}
@@ -176,6 +209,76 @@ public class HelloApplication extends Application {
         }
     }
 
+    public void LoadCoursesToProfile(String query, TableView tableView)
+    {
+        if(query.equals(""))
+            return;
+        ObservableList<ObservableList> data = FXCollections.observableArrayList();
+
+        tableView = new TableView();
+        tableView.setMinWidth(700);
+        tableView.setMaxWidth(700);
+        tableView.setStyle("-fx-font: 14px \"Segoe UI\"; -fx-text-fill: black;");
+        Boux.getChildren().set(1,tableView);
+        ResultSet rs = null;
+        try {
+
+            try {
+                rs = query(query);
+            }catch (Exception ee) {
+                return;
+            }
+
+
+            // Iterate over the ResultSet
+            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                final int j = i;
+                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
+                col.setCellFactory(column -> {
+                    return new TableCell() {
+                        @Override
+                        protected void updateItem(Object item, boolean empty) {
+                            super.updateItem(item, empty);
+                            setText(empty ? "" : getItem().toString());
+                            setGraphic(null);
+                            TableRow currentRow = getTableRow();
+                            if (!isEmpty()) {
+                                if (getIndex()%2==0)
+                                    currentRow.setStyle("-fx-background-color: lightblue;");
+                                else
+                                    currentRow.setStyle("-fx-background-color:  #90EE90;");
+                            }
+                        }
+                    };
+                });
+                col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
+                    public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
+                        return new SimpleStringProperty(param.getValue().get(j).toString());
+                    }
+                });
+
+                tableView.getColumns().addAll(col);
+            }
+
+            while (rs.next()) {
+                ObservableList<String> row = FXCollections.observableArrayList();
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                    row.add(rs.getString(i));
+                }
+                data.add(row);
+            }
+
+            tableView.setItems(data);
+            tableView.refresh();
+
+        }catch (NullPointerException npe)
+        {
+
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     public ResultSet query(String query) throws Exception
     {
         ResultSet rs = null;
@@ -290,7 +393,7 @@ public class HelloApplication extends Application {
             xlabel.setText("Home");
             rb0.selectedProperty().set(true);
         });
-        Button option1 = new Button("",box1);
+        Button option1 = new Button("",box2);
         rb1.selectedProperty().addListener((observable,oldValue,newValue)->{
             if(newValue)
             {
@@ -317,7 +420,7 @@ public class HelloApplication extends Application {
             }
         });
         option1.setOnAction(e->rb1.selectedProperty().set(true));
-        Button option2 = new Button("",box2);
+        Button option2 = new Button("",box1);
         rb2.selectedProperty().addListener((observable,oldValue,newValue) -> {
             if(newValue){
                 xlabel.setText("Home >> Profile");
@@ -440,8 +543,8 @@ public class HelloApplication extends Application {
         xlabel.setStyle(" -fx-font-weight: bold;");
         grayarea.getChildren().addAll(bar,xlabel);
         middleButtons = new GridPane();
-        Button button1 = new Button(" ",box11);
-        Button button2 = new Button(" ",box21);
+        Button button1 = new Button(" ",box21);
+        Button button2 = new Button(" ",box11);
         Button button3 = new Button(" ",box31);
         Button button4 = new Button(" ",box41);
         Button button5 = new Button(" ",box51);
