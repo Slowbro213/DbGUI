@@ -199,14 +199,13 @@ public class HelloApplication extends Application {
         VBox GradesZone = new VBox();
         ResultSet rs = null;
         try{
-
             String sqlQuery = "SELECT Code , Courses.Course_ID "  +
                     "FROM Students,Interim_Grades,Assignments,Courses " +
                     "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
                     "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
                     "AND Assignments.Course_ID = Courses.Course_ID "+
                     lastpart + ";";
-            System.out.println(sqlQuery);
+            //System.out.println(sqlQuery);
         rs = query(sqlQuery);
 
         while(rs.next())
@@ -498,7 +497,7 @@ public class HelloApplication extends Application {
         Label progressText = new Label(progress + "%");
         progressText.setFont(new Font(20));
         progressText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
-        progressText.setPadding(new Insets(83,0,0,75));
+        progressText.setPadding(new Insets(85,0,0,72));
 
         root.getChildren().add(outerCircle);
         root.getChildren().add(arc);
