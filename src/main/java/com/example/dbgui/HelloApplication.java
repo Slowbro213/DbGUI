@@ -41,6 +41,9 @@ public class HelloApplication extends Application {
 
     BorderPane borderPane;
 
+    VBox vpane;
+    StackPane pane1;//courses table
+    StackPane pane2;//course info table
     VBox Commands;
 
     VBox vbox;
@@ -298,15 +301,31 @@ public class HelloApplication extends Application {
         String lastpart;
         ResultSet rs = null;
         if(byepokaid)
-            lastpart = "WHERE Courses.Course_ID = '" + name + "';";
+            lastpart = "WHERE Courses.Course_ID = '" + name + "'";
         else
-            lastpart = "WHERE Courses.code = '" + name + "';";
+            lastpart = "WHERE Courses.code = '" + name + "'";
         try {
             rs = query("SELECT * FROM Courses "
-                    + lastpart);
+                    + lastpart + ";");
 
-            Label courseinfo = new Label("Course Information");
 
+            String courseID = rs.getString("Course_ID");
+            System.out.println(courseID);
+            String coursename = rs.getString("Code");
+            Label courseinfo = new Label("      Course Information\n Course Name: " + coursename);
+            courseinfo.setPadding(new Insets(0,0,20,0));
+            courseinfo.setFont(new Font("Helvetica",30));
+            TableView tableView = new TableView();
+            TableView tableView1 = new TableView();
+            StackPane pane = new StackPane(courseinfo);
+            pane1 = new StackPane(tableView);
+            pane2 = new StackPane(tableView1);
+            vpane = new VBox(pane,pane1,pane2);
+            loadDataFromDatabase("SELECT * FROM Courses "
+                    + lastpart + " AND Course_ID = '" + courseID + "';",tableView);
+            LoadCourseInfo(courseID,tableView1);
+
+            vbox.getChildren().set(1,vpane);
 
         }catch (Exception ee) {ee.printStackTrace();}
 
@@ -325,6 +344,11 @@ public class HelloApplication extends Application {
         } else if (rb3.selectedProperty().get())
         {
             boz.getChildren().set(1,tableView);
+        } else if (rb4.selectedProperty().get()) {
+            tableView.setMaxWidth(1160);
+            tableView.setMaxHeight(100);
+            pane1.getChildren().set(0,tableView);
+            tableView.setStyle("-fx-font-size: 16;");
         } else
         Commands.getChildren().set(3,tableView);
         ResultSet rs = null;
@@ -440,6 +464,61 @@ public class HelloApplication extends Application {
             e.printStackTrace();
         }
     }
+
+    public void LoadCourseInfo(String CourseID,TableView tableView) {
+        String query = "SELECT type,info FROM Course_Info WHERE Course_ID = '" + CourseID + "';";
+
+        ObservableList<ObservableList> data = FXCollections.observableArrayList();
+
+        tableView = new TableView();
+        tableView.setMaxWidth(1160);
+        tableView.setPrefHeight(300);
+        tableView.setStyle("-fx-font-size: 15;");
+        pane2.getChildren().set(0,tableView);
+        ResultSet rs = null;
+        try {
+
+            try {
+                rs = query(query);
+            }catch (Exception ee) {
+                return;
+            }
+
+
+            // Iterate over the ResultSet
+            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                final int j = i;
+                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
+                col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
+                    public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
+                        return new SimpleStringProperty(param.getValue().get(j).toString());
+                    }
+                });
+
+                tableView.getColumns().addAll(col);
+            }
+
+            while (rs.next()) {
+                ObservableList<String> row = FXCollections.observableArrayList();
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                    String info = rs.getString(i);
+                    row.add(addNewlineEvery20Words(info));
+                }
+                data.add(row);
+            }
+
+            tableView.setItems(data);
+            tableView.refresh();
+
+        }catch (NullPointerException npe)
+        {
+
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
     public ResultSet query(String query) throws Exception {
         ResultSet rs = null;
         try {
@@ -463,8 +542,7 @@ public class HelloApplication extends Application {
         return rs;
     }
 
-    public Group CreateProgressWheel(double progress)
-    {
+    public Group CreateProgressWheel(double progress) {
         Group root = new Group();
 
         // Create the outer circle
@@ -616,6 +694,12 @@ public class HelloApplication extends Application {
                     } else {
                         rb3.selectedProperty().set(false);
                     } break;
+                case 4:
+                    if (response == ButtonType.OK) {
+                        CreateCoursesZone(textField.getText());
+                    } else {
+                        rb4.selectedProperty().set(false);
+                    } break;
             }
         });
         ID.setStyle("-fx-font: 20px; -fx-font-family: 'Courier New';");
@@ -623,6 +707,21 @@ public class HelloApplication extends Application {
     }
 
 
+    public static String addNewlineEvery20Words(String str) {
+        String[] words = str.split(" ");
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < words.length; i++) {
+            result.append(words[i]);
+            if ((i + 1) % 20 == 0) {
+                result.append("\n");
+            } else {
+                result.append(" ");
+            }
+        }
+
+        return result.toString();
+    }
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("My Website Replica");
