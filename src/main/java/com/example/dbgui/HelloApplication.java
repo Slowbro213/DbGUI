@@ -73,7 +73,9 @@ public class HelloApplication extends Application {
         l.setFont(new Font("Helvetica",20));
         Button query = new Button("Execute Query");
         TextArea area = new TextArea();
-        area.setStyle("-fx-control-inner-background: black; -fx-text-fill: green; -fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Courier New';");
+        area.setPromptText("Enter Your SQL Command Here!");
+        area.setStyle("-fx-control-inner-background: black; -fx-text-fill: green; -fx-font-size: 20px;" +
+                " -fx-font-weight: bold; -fx-font-family: 'Courier New'; -fx-prompt-text-fill: green;");
         area.setMaxWidth(1500);
         TableView tableView = new TableView();
         tableView.setMaxWidth(1500);
