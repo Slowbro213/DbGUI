@@ -434,10 +434,12 @@ public class HelloApplication extends Application {
                             setGraphic(null);
                             TableRow currentRow = getTableRow();
                             if (!isEmpty()) {
-                                if (getIndex()%2==0)
-                                    currentRow.setStyle("-fx-background-color: lightblue;");
-                                else
-                                    currentRow.setStyle("-fx-background-color:  #90EE90;");
+                                if (getIndex()%2==0){
+                                    currentRow.setStyle("-fx-background-color: #0096C9;");
+                                    setTextFill(Color.WHITE);}
+                                else{
+                                    currentRow.setStyle("-fx-background-color:  grey;");
+                                    setTextFill(Color.WHITE);}
                             }
                         }
                     };
