@@ -44,6 +44,7 @@ public class HelloApplication extends Application {
     VBox vpane;
     StackPane pane1;//courses table
     StackPane pane2;//course info table
+    StackPane pane3;//course is given by x lecturers
     VBox Commands;
 
     VBox vbox;
@@ -319,13 +320,17 @@ public class HelloApplication extends Application {
             courseinfo.setFont(new Font("Helvetica",30));
             TableView tableView = new TableView();
             TableView tableView1 = new TableView();
+            TableView tableView2 = new TableView();
             StackPane pane = new StackPane(courseinfo);
             pane1 = new StackPane(tableView);
             pane2 = new StackPane(tableView1);
-            vpane = new VBox(pane,pane1,pane2);
+            pane3 = new StackPane(tableView2);
+            vpane = new VBox(pane,pane1,pane2,pane3);
             loadDataFromDatabase("SELECT * FROM Courses "
                     + lastpart + " AND Course_ID = '" + courseID + "';",tableView);
-            LoadCourseInfo(courseID,tableView1);
+            LoadCourseInfo(courseID,tableView1,0);
+            LoadCourseInfo(courseID,tableView2,1);
+
 
             vbox.getChildren().set(1,vpane);
 
@@ -467,8 +472,13 @@ public class HelloApplication extends Application {
         }
     }
 
-    public void LoadCourseInfo(String CourseID,TableView tableView) {
-        String query = "SELECT type,info FROM Course_Info WHERE Course_ID = '" + CourseID + "';";
+    public void LoadCourseInfo(String CourseID,TableView tableView,int option) {
+        String query = null;
+        if(option == 0)
+            query = "SELECT type,info FROM Course_Info WHERE Course_ID = '" + CourseID + "';";
+        else {
+            query = "SELECT Lecturer.* FROM Lecturer JOIN Gives ON Gives.Lecturer_ID = Lecturer.Lecturer_ID WHERE Course_ID = '" + CourseID + "';";
+        }
 
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
 
@@ -476,7 +486,10 @@ public class HelloApplication extends Application {
         tableView.setMaxWidth(1160);
         tableView.setPrefHeight(300);
         tableView.setStyle("-fx-font-size: 15;");
-        pane2.getChildren().set(0,tableView);
+        if(option==0)
+            pane2.getChildren().set(0,tableView);
+        else
+            pane3.getChildren().set(0,tableView);
         ResultSet rs = null;
         try {
 
@@ -491,6 +504,33 @@ public class HelloApplication extends Application {
             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
                 final int j = i;
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
+                col.setCellFactory(column -> {
+                    return new TableCell() {
+                        @Override
+                        protected void updateItem(Object item, boolean empty) {
+                            super.updateItem(item, empty);
+                            setText(empty ? "" : getItem().toString());
+                            setGraphic(null);
+                            TableRow currentRow = getTableRow();
+                            if (!isEmpty()) {
+                                if(option==0){
+                                    if (getIndex()%2==0)
+                                        currentRow.setStyle("-fx-background-color: lightblue;");
+                                    else
+                                        currentRow.setStyle("-fx-background-color:  #90EE90;");}
+                                else
+                                {
+                                    if (getIndex()%2==0){
+                                        currentRow.setStyle("-fx-background-color: #0096C9;");
+                                        setTextFill(Color.WHITE);}
+                                    else {
+                                        currentRow.setStyle("-fx-background-color:  grey;");
+                                        setTextFill(Color.WHITE);}
+                                }
+                            }
+                        }
+                    };
+                });
                 col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                     public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
                         return new SimpleStringProperty(param.getValue().get(j).toString());
