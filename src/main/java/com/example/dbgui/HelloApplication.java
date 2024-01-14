@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -15,8 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -37,6 +37,8 @@ public class HelloApplication extends Application {
     static Connection connection;
     GridPane middleButtons;
 
+    int Progression;
+
     BorderPane borderPane;
 
     VBox Commands;
@@ -46,8 +48,11 @@ public class HelloApplication extends Application {
     Label xlabel;
 
     VBox boz;
+
+    HBox gradesrow;
     RadioButton rb1;
     RadioButton rb2;
+    int clicked =0;
     RadioButton rb3;
     RadioButton rb4;
     RadioButton rb5;
@@ -96,11 +101,11 @@ public class HelloApplication extends Application {
         Boux.setPadding(new Insets(100,50,0,0));
         Boux.setSpacing(100);
         Courses.setOnAction(e->{
-            LoadCoursesToProfile("SELECT Courses.Code , Courses.Ects  "  +
-                    "FROM Students,Interim_Grades,Assignments,Courses " +
-                    "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID " +
+            LoadCoursesToProfile("SELECT Courses.Code , Courses.Ects , Course_completion.overall_grade,Course_completion.course_completion,Course_completion.attendence "  +
+                    "FROM Students,Interim_Grades,Assignments,Courses,Course_completion " +
+                    "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID AND  Students.Epoka_ID = Course_completion.Epoka_ID " +
                     "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
-                    "AND Assignments.Course_ID = Courses.COurse_ID "+
+                    "AND Assignments.Course_ID = Courses.COurse_ID AND Course_completion.Course_ID = Courses.COurse_ID "+
                     "AND Students.Epoka_ID = '" + Epoka_ID + "';",tableView);
         });
 
@@ -190,6 +195,7 @@ public class HelloApplication extends Application {
         else
             lastpart = "AND Students.name = '" + name + "'";
         gradesZone = new ScrollPane();
+        gradesZone.setMaxWidth(1550);
         VBox GradesZone = new VBox();
         ResultSet rs = null;
         try{
@@ -206,6 +212,7 @@ public class HelloApplication extends Application {
         while(rs.next())
             {
                 boz = new VBox();
+                boz.setMaxHeight(300);
                 StackPane hoz = new StackPane();
                 Rectangle r = new Rectangle(1000,50,Color.web("#584573"));
                 Label laabel = new Label( rs.getString("Code"));
@@ -213,14 +220,25 @@ public class HelloApplication extends Application {
                 laabel.setFont(new Font("Helvetica",20));
                 hoz.getChildren().addAll(r,laabel);
                 TableView table = new TableView();
-                boz.getChildren().addAll(hoz,table);
+                String courseid = rs.getString("Course_ID");
+                Double progress = Double.parseDouble(query("SELECT Course_completion.course_completion "  +
+                        "FROM Students,Interim_Grades,Assignments,Courses,Course_completion " +
+                        "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID AND  Students.Epoka_ID = Course_completion.Epoka_ID " +
+                        "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID " +
+                        "AND Assignments.Course_ID = Courses.COurse_ID AND Course_completion.Course_ID = Courses.COurse_ID "+
+                        lastpart + " AND Courses.Course_ID = '" + courseid + "';").getString("course_completion"));
+                Pane wheel =  new Pane(CreateProgressWheel(progress));
+                wheel.setPadding(new Insets(100,0,0,0));
+
+                gradesrow = new HBox(table, wheel);
+                boz.getChildren().addAll(hoz,gradesrow);
                 loadDataFromDatabase(" SELECT Interim_Grades.grade , Assignments.weight , Assignments.Type , Assignments.Class_Average\n" +
                         "FROM Students,Interim_Grades,Assignments,Courses\n" +
                         "WHERE Students.Epoka_ID = Interim_Grades.Epoka_ID\n" +
                         "AND Interim_Grades.Assignment_ID = Assignments.Assignment_ID\n" +
                         "AND Assignments.Course_ID = Courses.Course_ID\n" +
                          lastpart + " "+
-                        "AND Courses.Course_ID = '" + rs.getString("Course_ID") + "';",table);
+                        "AND Courses.Course_ID = '" + courseid + "';",table);
                 GradesZone.getChildren().add(boz);
             }
 
@@ -240,6 +258,7 @@ public class HelloApplication extends Application {
         else
             lastpart = "Students.name = '" + name + "'";
         gradesZone = new ScrollPane();
+        gradesZone.setMaxWidth(1550);
         VBox GradesZone = new VBox();
         ResultSet rs = null;
         try{
@@ -261,9 +280,9 @@ public class HelloApplication extends Application {
                 hoz.getChildren().addAll(r,laabel);
                 TableView table = new TableView();
                 boz.getChildren().addAll(hoz,table);
-                loadDataFromDatabase("SELECT Attendence.* " +
+                loadDataFromDatabase("SELECT Attendence.week,Attendence.type,Attendence.hours_Attended,Attendence.date " +
                         "FROM Students,Attendence " +
-                        "WHERE " + lastpart + " " +
+                        "WHERE " + lastpart + " AND Students.Epoka_ID = Attendence.Epoka_ID " +
                         "AND Attendence.Course_ID = '" + rs.getString("Course_ID") + "';",table);
                 GradesZone.getChildren().add(boz);
             }
@@ -275,6 +294,24 @@ public class HelloApplication extends Application {
         }catch (Exception ee){ee.printStackTrace();}
 
     }
+
+    public void CreateCoursesZone(String name){
+        String lastpart;
+        ResultSet rs = null;
+        if(byepokaid)
+            lastpart = "WHERE Courses.Course_ID = '" + name + "';";
+        else
+            lastpart = "WHERE Courses.code = '" + name + "';";
+        try {
+            rs = query("SELECT * FROM Courses "
+                    + lastpart);
+
+            Label courseinfo = new Label("Course Information");
+
+
+        }catch (Exception ee) {ee.printStackTrace();}
+
+    }
     public void loadDataFromDatabase(String query,TableView tableView) {
         if(query.equals(""))
             return;
@@ -282,11 +319,14 @@ public class HelloApplication extends Application {
 
         tableView = new TableView();
         tableView.setMaxWidth(1500);
-        if(rb2.selectedProperty().get() || rb3.selectedProperty().get())
+        if(rb2.selectedProperty().get())
+        {
+            tableView.setPrefWidth(800);
+           gradesrow.getChildren().set(0,tableView);
+        } else if (rb3.selectedProperty().get())
         {
             boz.getChildren().set(1,tableView);
-        }
-        else
+        } else
         Commands.getChildren().set(3,tableView);
         ResultSet rs = null;
         try {
@@ -424,7 +464,51 @@ public class HelloApplication extends Application {
         return rs;
     }
 
+    public Group CreateProgressWheel(double progress)
+    {
+        Group root = new Group();
+
+        // Create the outer circle
+        Circle outerCircle = new Circle();
+        outerCircle.setCenterX(100.0f);
+        outerCircle.setCenterY(100.0f);
+        outerCircle.setRadius(80.0f);
+        outerCircle.setStroke(Color.BLACK);
+        outerCircle.setFill(Color.WHITE);
+
+        // Create the inner circle
+        Circle innerCircle = new Circle();
+        innerCircle.setCenterX(100.0f);
+        innerCircle.setCenterY(100.0f);
+        innerCircle.setRadius(60.0f);
+        innerCircle.setStroke(Color.BLACK);
+        innerCircle.setFill(Color.WHITE);
+
+        // Create the arc for the progress
+        Arc arc = new Arc();
+        arc.setCenterX(100.0f);
+        arc.setCenterY(100.0f);
+        arc.setRadiusX(80.0f);
+        arc.setRadiusY(80.0f);
+        arc.setStartAngle(90.0f);
+        arc.setLength(-360.0f * progress/100); // % progress
+        arc.setType(ArcType.ROUND);
+        arc.setFill(Color.BLUE);
+
+        Label progressText = new Label(progress + "%");
+        progressText.setFont(new Font(20));
+        progressText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+        progressText.setPadding(new Insets(83,0,0,75));
+
+        root.getChildren().add(outerCircle);
+        root.getChildren().add(arc);
+        root.getChildren().add(innerCircle);
+        root.getChildren().add(progressText);
+
+        return root;
+    }
     public void CreateAlert(int buttonnumber) {
+        clicked = 0;
         ImageView top1 = new ImageView();
         ImageView namegif = new ImageView();
         Label selection = new Label();
@@ -461,10 +545,24 @@ public class HelloApplication extends Application {
         IDgif.setFitHeight(80);
         top1.setFitHeight(100);
         top1.setFitWidth(100);
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.getDialogPane().setStyle("-fx-background-color: white;");
         RadioButton ID = new RadioButton("");
         RadioButton Name = new RadioButton("Name");
+        Name.setOnMouseClicked(e->
+        {
+            clicked++;
+            if(clicked==10)
+            {
+                Stage skadush = new Stage();
+                skadush.setTitle("Easter egg :)");
+                ImageView ska = new ImageView(new Image("file:Images/Skadush.jpeg"));
+                Scene dush = new Scene(new Pane(ska));
+                skadush.setScene(dush);
+                skadush.show();
+            }
+        });
         if(buttonnumber<4){
             alert.setHeaderText("Write the name or Epoka ID of the Student");
             ID.setText("Epoka ID");}
