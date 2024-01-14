@@ -75,7 +75,7 @@ public class HelloApplication extends Application {
         TextArea area = new TextArea();
         area.setPromptText("Enter Your SQL Command Here!");
         area.setStyle("-fx-control-inner-background: black; -fx-text-fill: green; -fx-font-size: 20px;" +
-                " -fx-font-weight: bold; -fx-font-family: 'Courier New'; -fx-prompt-text-fill: green;");
+                " -fx-font-weight: bold; -fx-font-family: 'Courier New'; -fx-prompt-text-fill: gray;");
         area.setMaxWidth(1500);
         TableView tableView = new TableView();
         tableView.setMaxWidth(1500);
