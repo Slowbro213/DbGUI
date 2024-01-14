@@ -493,7 +493,7 @@ public class HelloApplication extends Application {
         arc.setStartAngle(90.0f);
         arc.setLength(-360.0f * progress/100); // % progress
         arc.setType(ArcType.ROUND);
-        arc.setFill(Color.BLUE);
+        arc.setFill(Color.PURPLE);
 
         Label progressText = new Label(progress + "%");
         progressText.setFont(new Font(20));
