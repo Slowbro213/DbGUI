@@ -347,7 +347,7 @@ public class HelloApplication extends Application {
         if(byepokaid)
             lastpart = "WHERE Lecturer_ID = '" + name + "'";
         else
-            lastpart = "WHERE Name = '" + name + "'";
+            lastpart = "WHERE name = '" + name + "'";
         HBox sides = new HBox();
         ScrollPane right = new ScrollPane();
         VBox left = new VBox();
@@ -373,7 +373,7 @@ public class HelloApplication extends Application {
             left.getChildren().addAll(id,name2,office,email,office_phone);
             left.setStyle("");
 
-            rs = query("SELECT DISTINCT type FROM Lecturer_info " + lastpart + ";");
+            rs = query("SELECT DISTINCT type FROM Lecturer_info WHERE Lecturer_ID = '" + Id + "';");
             VBox sections = new VBox();
             sections.setSpacing(20);
             while(rs.next()){
@@ -383,7 +383,7 @@ public class HelloApplication extends Application {
                 Label part = new Label(type);
                 part.setStyle("-fx-font-size: 30; -fx-font-weight: bold;");
                 sections.getChildren().add(part);
-                ResultSet rs2 = query("SELECT info FROM Lecturer_info " + lastpart + " AND type = '" + type + "';");
+                ResultSet rs2 = query("SELECT info FROM Lecturer_info  WHERE Lecturer_ID =  '" + Id + "' AND type = '" + type + "';");
                 while(rs2.next())
                 {
                     String infox = rs2.getString(1);
