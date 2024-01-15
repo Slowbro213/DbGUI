@@ -349,6 +349,7 @@ public class HelloApplication extends Application {
         else
             lastpart = "WHERE name = '" + name + "'";
         HBox sides = new HBox();
+        sides.setSpacing(100);
         ScrollPane right = new ScrollPane();
         VBox left = new VBox();
         ImageView image = new ImageView(new Image("file:Gifs\\presentation.gif"));
@@ -376,6 +377,7 @@ public class HelloApplication extends Application {
             rs = query("SELECT DISTINCT type FROM Lecturer_info WHERE Lecturer_ID = '" + Id + "';");
             VBox sections = new VBox();
             sections.setSpacing(20);
+            sections.setPadding(new Insets(0,0,0,30));
             while(rs.next()){
                 VBox section = new VBox();
                 section.setSpacing(10);
@@ -454,7 +456,9 @@ public class HelloApplication extends Application {
             while (rs.next()) {
                 ObservableList<String> row = FXCollections.observableArrayList();
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                    row.add(rs.getString(i));
+                    String info = rs.getString(i);
+                    System.out.println(info);
+                    row.add(info);
                 }
                 data.add(row);
             }
