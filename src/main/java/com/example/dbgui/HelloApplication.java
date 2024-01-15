@@ -45,6 +45,7 @@ public class HelloApplication extends Application {
     StackPane pane1;//courses table
     StackPane pane2;//course info table
     StackPane pane3;//course is given by x lecturers
+    VBox bigsections;//for the lecturers part
     VBox Commands;
 
     VBox vbox;
@@ -80,7 +81,9 @@ public class HelloApplication extends Application {
         area.setMaxWidth(1500);
         TableView tableView = new TableView();
         tableView.setMaxWidth(1500);
-        query.setOnAction(e->loadDataFromDatabase(area.getText(),tableView));
+        query.setOnAction(e->{
+            loadDataFromDatabase(area.getText(),tableView);
+        });
         Commands = new VBox(l,area,query,tableView);
         Commands.setSpacing(50);
     }
@@ -337,6 +340,73 @@ public class HelloApplication extends Application {
         }catch (Exception ee) {ee.printStackTrace();}
 
     }
+
+    public void CreateLecturerZone(String name){
+
+        String lastpart;
+        if(byepokaid)
+            lastpart = "WHERE Lecturer_ID = '" + name + "'";
+        else
+            lastpart = "WHERE Name = '" + name + "'";
+        HBox sides = new HBox();
+        ScrollPane right = new ScrollPane();
+        VBox left = new VBox();
+        ImageView image = new ImageView(new Image("file:Gifs\\presentation.gif"));
+        image.setFitHeight(400);
+        image.setFitWidth(400);
+        left.getChildren().add(image);
+        sides.getChildren().addAll(left,right);
+        ResultSet rs = null;
+        try{
+            rs = query("SELECT * FROM Lecturer " + lastpart + ";");
+            String Id = rs.getString("Lecturer_ID");
+            Label id = new Label("ID: " + Id);
+            id.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+            Label name2 = new Label("Name: " + rs.getString("Name"));
+            name2.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+            Label office = new Label("Office: " + rs.getString("office"));
+            office.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+            Label email = new Label("Email: " + rs.getString("email"));
+            email.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+            Label office_phone = new Label("Office Phone: " + rs.getString("office_phone"));
+            office_phone.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+            left.getChildren().addAll(id,name2,office,email,office_phone);
+            left.setStyle("");
+
+            rs = query("SELECT DISTINCT type FROM Lecturer_info " + lastpart + ";");
+            VBox sections = new VBox();
+            sections.setSpacing(20);
+            while(rs.next()){
+                VBox section = new VBox();
+                section.setSpacing(10);
+                String type = (rs.getString(1));
+                Label part = new Label(type);
+                part.setStyle("-fx-font-size: 30; -fx-font-weight: bold;");
+                sections.getChildren().add(part);
+                ResultSet rs2 = query("SELECT info FROM Lecturer_info " + lastpart + " AND type = '" + type + "';");
+                while(rs2.next())
+                {
+                    String infox = rs2.getString(1);
+                    infox = addNewlineEveryXWords(infox,7);
+                    Label infoxx = new Label(infox);
+                    infoxx.setStyle("-fx-font-size: 17;");
+                    section.getChildren().add(infoxx);
+                }
+                sections.getChildren().add(section);
+            }
+            TableView tableView = new TableView();
+            Label Courses = new Label("Courses");
+            Courses.setStyle("-fx-font-size: 30; -fx-font-weight: bold;");;
+            sections.getChildren().add(Courses);
+            bigsections = new VBox(sections,tableView);
+            LoadCourseInfo(Id,tableView,5);
+            right.setContent(bigsections);
+            vbox.getChildren().set(1,sides);
+        }catch (Exception ee ){ee.printStackTrace();}
+
+
+
+    }
     public void loadDataFromDatabase(String query,TableView tableView) {
         if(query.equals(""))
             return;
@@ -478,7 +548,11 @@ public class HelloApplication extends Application {
         String query = null;
         if(option == 0)
             query = "SELECT type,info FROM Course_Info WHERE Course_ID = '" + CourseID + "';";
-        else {
+        else if (option == 5) {
+            query = "SELECT Courses.* FROM Courses JOIN Gives ON Courses.Course_ID = Gives.Course_ID JOIN Lecturer ON Lecturer.Lecturer_ID = Gives.Lecturer_ID" +
+                    " WHERE Lecturer.Lecturer_ID = '" + CourseID + "';";
+
+        } else {
             query = "SELECT Lecturer.* FROM Lecturer JOIN Gives ON Gives.Lecturer_ID = Lecturer.Lecturer_ID WHERE Course_ID = '" + CourseID + "';";
         }
 
@@ -490,7 +564,10 @@ public class HelloApplication extends Application {
         tableView.setStyle("-fx-font-size: 15;");
         if(option==0)
             pane2.getChildren().set(0,tableView);
-        else
+        else if (option==5) {
+            bigsections.getChildren().set(1,tableView);
+
+        } else
             pane3.getChildren().set(0,tableView);
         ResultSet rs = null;
         try {
@@ -546,7 +623,7 @@ public class HelloApplication extends Application {
                 ObservableList<String> row = FXCollections.observableArrayList();
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                     String info = rs.getString(i);
-                    row.add(addNewlineEvery20Words(info));
+                    row.add(addNewlineEveryXWords(info,20));
                 }
                 data.add(row);
             }
@@ -744,6 +821,12 @@ public class HelloApplication extends Application {
                     } else {
                         rb4.selectedProperty().set(false);
                     } break;
+                case 5:
+                    if (response == ButtonType.OK) {
+                        CreateLecturerZone(textField.getText());
+                    } else {
+                        rb5.selectedProperty().set(false);
+                    } break;
             }
         });
         ID.setStyle("-fx-font: 20px; -fx-font-family: 'Courier New';");
@@ -751,13 +834,13 @@ public class HelloApplication extends Application {
     }
 
 
-    public static String addNewlineEvery20Words(String str) {
+    public static String addNewlineEveryXWords(String str,int x) {
         String[] words = str.split(" ");
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < words.length; i++) {
             result.append(words[i]);
-            if ((i + 1) % 20 == 0) {
+            if ((i + 1) % x == 0) {
                 result.append("\n");
             } else {
                 result.append(" ");
